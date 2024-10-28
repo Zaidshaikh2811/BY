@@ -1,7 +1,7 @@
 // screens/WelcomeScreen.js
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Image, Animated, TouchableOpacity } from 'react-native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const WelcomeScreen = ({ navigation }) => {
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
 
@@ -11,8 +11,17 @@ const WelcomeScreen = ({ navigation }) => {
             duration: 2000, // Duration for the animation
             useNativeDriver: true, // Use native driver for better performance
         }).start();
-    }, [fadeAnim]);
 
+        const checkToken = async () => {
+            const token = await AsyncStorage.getItem('token');
+            if (token) {
+
+                navigation.navigate('Drawer');
+            }
+        };
+
+        checkToken();
+    }, [fadeAnim, navigation]);
     return (
         <View style={styles.container}>
             <Animated.View style={{ opacity: fadeAnim }}>

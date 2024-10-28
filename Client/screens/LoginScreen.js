@@ -1,8 +1,13 @@
-// screens/LoginScreen.js
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Animated, TouchableOpacity, Alert } from 'react-native';
 
-const LoginScreen = ({ navigation }) => {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+
+const LoginScreen = () => {
+    const navigation = useNavigation()
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
@@ -15,9 +20,24 @@ const LoginScreen = ({ navigation }) => {
         }).start();
     }, [fadeAnim]);
 
-    const handleLogin = () => {
-        // Handle login logic here
-        console.log('Logging in with:', email, password);
+    const handleLogin = async () => {
+        try {
+
+
+            const Resp = await axios.post('https://by-1.onrender.com/login', { email, password });
+
+            if (Resp.status == 400) {
+                alert("Invalid Email or Password")
+
+            } else {
+                await AsyncStorage.setItem('token', Resp.data.token);
+
+                navigation.navigate('Drawer');
+            }
+        } catch (error) {
+            alert(error)
+            Alert.alert('Login Failed', error.message || 'An error occurred. Please try again.');
+        }
     };
 
     return (
@@ -96,5 +116,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 });
+
 
 export default LoginScreen;

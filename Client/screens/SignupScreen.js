@@ -1,12 +1,35 @@
 // screens/SignupScreen.js
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
-const SignupScreen = ({ navigation }) => {
+const SignupScreen = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const fadeAnim = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    const navigation = useNavigation()
+    const submitData = async () => {
+        try {
+            const resp = axios.post("https://by-1.onrender.com/signup", {
+                name,
+                email,
+                password
+            })
+            if (resp.status === 400) {
+                alert("User already exists")
+                return
+            } else {
+                navigation.navigate('Login');
+            }
+
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     useEffect(() => {
         Animated.timing(fadeAnim, {
@@ -16,10 +39,7 @@ const SignupScreen = ({ navigation }) => {
         }).start();
     }, [fadeAnim]);
 
-    const handleSignup = () => {
-        // Handle signup logic here
-        console.log('Signing up with:', name, email, password);
-    };
+
 
     return (
         <View style={styles.container}>
@@ -47,7 +67,7 @@ const SignupScreen = ({ navigation }) => {
                     secureTextEntry
                 />
             </Animated.View>
-            <TouchableOpacity style={styles.button} onPress={handleSignup}>
+            <TouchableOpacity style={styles.button} onPress={submitData}>
                 <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Login')}>
